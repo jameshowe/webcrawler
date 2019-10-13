@@ -1,0 +1,25 @@
+{
+  "name": "webcrawler",
+  "version": "1.0.0",
+  "description": "A simple web crawler CLI application",
+  "main": "index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jameshowe/webcrawler.git"
+  },
+  "keywords": [],
+  "author": "James Howe",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jameshowe/webcrawler/issues"
+  },
+  "homepage": "https://github.com/jameshowe/webcrawler#readme",
+  "dependencies": {
+    "axios": "^0.19.0",
+    "cheerio": "^1.0.0-rc.3",
+    "jest": "^24.9.0"
+  }
+}
