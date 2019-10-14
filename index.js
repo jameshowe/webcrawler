@@ -2,6 +2,6 @@ const WebCrawler = require('./src/web_crawler');
 
 (async () => {
   const crawler = new WebCrawler();
-  const results = await crawler.crawl('http://mindgenius.com');
+  const results = await crawler.crawl('http://wiprodigital.com');
   console.log(results);
 })();
