@@ -44,7 +44,11 @@ class HttpPage {
       this.loaded = true;
       return this.$;
     } catch (e) {
-      console.error(e);
+      if (e.isAxiosError) {
+        console.error(e.data, e.stack);
+      } else {
+        console.error(e);
+      }
       throw new HttpPageLoadError('Failed to load URL')
     }
   }
@@ -82,9 +86,11 @@ class HttpPage {
    */
   async scrape() {
     // use maps to dedupe URLs
-    const linkUrls = new Map();
-    const externalUrls = new Map();
-    const mediaUrls = new Map();
+    const result = {
+      linkUrls: new Map(),
+      externalUrls: new Map(),
+      mediaUrls: new Map()
+    }
     // lazily load HTTP content
     const $ = await this.load();
     // deem any elements with a src / href attribute a link
@@ -109,20 +115,16 @@ class HttpPage {
         if (relUrl && relUrl.startsWith('data:')) return;
 
         if (this.isImageUrl(relUrl)) {
-          mediaUrls.set(src, null);
+          result.mediaUrls.set(src, null);
         } else if (pageUrl.host && !this.isSameDomain(pageUrl.host)) {
-          externalUrls.set(src, null);
+          result.externalUrls.set(src, null);
         } else if (relUrl !== this.url.pathname) {
           // ensure host name for URL, strip away query string parameters
           const parsedUrl = new urlParser.URL(relUrl, this.url.href);
-          linkUrls.set(parsedUrl.href, {});
+          result.linkUrls.set(parsedUrl.href, null);
         }
       });
-    return {
-      linkUrls: mapToObject(linkUrls),
-      externalUrls: Array.from(externalUrls.keys()),
-      mediaUrls: Array.from(mediaUrls.keys())
-    };
+    return result;
   }
 }
 
