@@ -1,16 +1,19 @@
 const { HttpPage, HttpPageLoadError } = require('./http_page');
 
+/**
+ * Class to represent a web crawler 
+ */
 class WebCrawler {
 
   /**
-   * Creates a new WebCrawler
+   * Creates a new WebCrawler instance
    */
   constructor() {
     this.crawled = null;
   }
   /**
-   * Begins crawling process
-   * @param {String} url  URL to start crawling from
+   * Crawl links for the specified URL
+   * @param {String} url
    */
   async crawl(url) {
     const result = {
@@ -22,6 +25,12 @@ class WebCrawler {
     return result;
   }
 
+  /**
+   * Follow crawlable links for the specified page and appends the results, excluding links that have already been crawled
+   * @param {HttpPage} page   Page to crawl
+   * @param {Array} crawled   Array of URLs that have already been crawled
+   * @param {Object} result   Resultset to be updated from crawl
+   */
   async traverse(page, crawled, result) {
     // avoid re-crawling same URL
     if (crawled.includes(page.href())) return;

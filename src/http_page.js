@@ -3,15 +3,20 @@ const cheerio = require('cheerio');
 const urlParser = require('url');
 const { mapToObject } = require('./utils');
 
+/**
+ * Class to respresnt a HTTP page load error
+ */
 class HttpPageLoadError extends Error {
 }
 
+/**
+ * Class to reprsent a HTTP page
+ */
 class HttpPage {
 
   /**
-   * Creates a new HttpPage
-   * @param {String} url  URL for page
-   * @class
+   * Creates a new HttpPage instance
+   * @param {String} url  URL for HTTP page
    */
   constructor(url) {
     this.url = urlParser.parse(url);

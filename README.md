@@ -33,18 +33,18 @@ npm test
 
 ## TODO
 
-- improve performance and speed of crawl e.g. run scrapes in parallel, use [pm2](https://pm2.keymetrics.io/) to scale out (although we need to be wary of race conditions, would need a mutex of some kind)
-- include additional processing options e.g. max page depth, rate-limiting (protect against [429](https://httpstatuses.com/429) errors)
-- decouple HTML parsing from `HttpPage` class (maybe down the line we want to move away from `cheerio`)
-- move results deserialization / file exporting to separate classes
-- avoid crawling CMS-related URLs (`/xmlrpc.php`, `/wp-json` etc.)
-- improve canonicalization of URLs to avoid duplicatation / re-processing
-- better hashtag URL processing (although the page is the same, they may pull dynamic content)
-- better file name validation
-- include stats e.g. total links found, pages crawled, crawl times etc.
-- include more unit tests (happy-day, edge-case, error scenarios)
-- include integration tests (validate against a real URL)
-- implement [Babel](https://babeljs.io/) to leverage ES2017 syntax (i.e. `yield`, `Object.fromEntries`)
-- improve parameter validation (or better yet, use [TypeScript](https://www.typescriptlang.org/))
-- improve instrumentation, utilise remote services like [Loggly](https://www.loggly.com/), [Prometheus](https://prometheus.io/) or equivalent
-- perf tests against readily available libs like [crawler](https://www.npmjs.com/package/crawler), make sure you are reinventing the wheel for good reason
+- Improve performance and speed of crawl e.g. run scrapes in parallel, use [pm2](https://pm2.keymetrics.io/) to scale out (although we need to be wary of race conditions, would need a mutex of some kind)
+- Include additional processing options e.g. max page depth, rate-limiting (protect against [429](https://httpstatuses.com/429) errors)
+- Decouple HTML parsing from `HttpPage` class (maybe down the line we want to move away from `cheerio`)
+- Move results deserialization / file exporting to separate classes
+- Avoid crawling CMS-related URLs (`/xmlrpc.php`, `/wp-json` etc.)
+- Improve canonicalization of URLs to avoid duplicatation / re-processing
+- Better hashtag URL processing (although the page is the same, they may pull dynamic content)
+- Better file name validation
+- Include stats e.g. total links found, pages crawled, crawl times etc.
+- Include more unit tests (happy-day, edge-case, error scenarios)
+- Include integration tests (validate against a real URL)
+- Implement [Babel](https://babeljs.io/) to leverage ES2017 syntax (i.e. `yield`, `Object.fromEntries`)
+- Improve parameter validation (or better yet, use [TypeScript](https://www.typescriptlang.org/))
+- Improve instrumentation, utilise remote services like [Loggly](https://www.loggly.com/), [Prometheus](https://prometheus.io/) or equivalent
+- Perf tests against readily available libs like [crawler](https://www.npmjs.com/package/crawler), make sure you are reinventing the wheel for good reason
