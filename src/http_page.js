@@ -1,6 +1,10 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const urlParser = require('url');
+const { mapToObject } = require('./utils');
+
+class HttpPageLoadError extends Error {
+}
 
 class HttpPage {
 
@@ -14,7 +18,16 @@ class HttpPage {
     if (!this.url.host) throw Error(`Invalid URL ${url} - must include protocol`);
 
     this.$ = null;
-    this.links = null;
+    this.loaded = false;
+  }
+
+  /**
+   * Returns href for page
+   * 
+   * @readonly
+   */
+  href() {
+    return this.url.href;
   }
 
   /**
@@ -22,19 +35,17 @@ class HttpPage {
    * @param {Boolean} reload  Flag to ensure page is refetched if previously loaded (Default: false)
    */
   async load(reload = false) {
-    if (this.$ && !reload) return;
+    // optimization to avoid re-fetching HTML content
+    if (this.loaded && !reload) return this.$;
 
     try {
       const result = await axios.get(this.url.href);
       this.$ = cheerio.load(result.data);
-      // reset links on a fresh load
-      this.links = {
-        pages: new Map(),
-        external: new Map(),
-        media: new Map()
-      };
+      this.loaded = true;
+      return this.$;
     } catch (e) {
       console.error(e);
+      throw new HttpPageLoadError('Failed to load URL')
     }
   }
 
@@ -65,36 +76,57 @@ class HttpPage {
   }
 
   /**
-   * Extracts all possible links from the HTML content
+   * Scrape HTML content all possible links
    * 
-   * @returns {Array} Array of links
+   * @returns {Object} Scrape result
    */
-  async getLinks() {
-    if (!this.links) {
-      // lazily load HTTP content
-      await this.load();
-      if (this.$) {
-        this.$("[src*='/'],[href*='/']")
-          .each(async (i, link) => {
-            let src = link.attribs.src || link.attribs.href;
+  async scrape() {
+    // use maps to dedupe URLs
+    const linkUrls = new Map();
+    const externalUrls = new Map();
+    const mediaUrls = new Map();
+    // lazily load HTTP content
+    const $ = await this.load();
+    // deem any elements with a src / href attribute a link
+    $("[src],[href]")
+      .each(async (i, link) => {
+        let src = link.attribs.src || link.attribs.href;
+        // skip hash links (most likely used for event handling)
+        if (src.startsWith('#')) return;
 
-            const pageUrl = urlParser.parse(src);
-            const relUrl = pageUrl.pathname;
-            if (pageUrl.host && !this.isSameDomain(pageUrl.host)) {
-              this.links.external.set(src, null);
-            } else if (this.isImageUrl(relUrl)) {
-              this.links.media.set(src, null);
-            } else if (relUrl !== this.url.pathname && !this.isJsOrCssUrl(relUrl)) {
-              if (!pageUrl.host) {
-                src = urlParser.resolve(this.url.host, relUrl);
-              }
-              this.links.pages.set(src, {});
-            }
-          });
-      }
-    }
-    return this.links;
+        // extract query string / hash from URLs
+        const pageUrl = urlParser.parse(src, false, true);
+        let relUrl = pageUrl.pathname;
+        if (!relUrl) return; // skip root entries
+
+        // remove trailing slash (unless root)
+        if (relUrl.length > 1 && relUrl.endsWith('/')) {
+          relUrl = relUrl.substr(0, relUrl.length-1);
+        }
+
+        // skip CSS / JS / Data URLs
+        if (this.isJsOrCssUrl(relUrl)) return;
+        if (relUrl && relUrl.startsWith('data:')) return;
+
+        if (this.isImageUrl(relUrl)) {
+          mediaUrls.set(src, null);
+        } else if (pageUrl.host && !this.isSameDomain(pageUrl.host)) {
+          externalUrls.set(src, null);
+        } else if (relUrl !== this.url.pathname) {
+          // ensure host name for URL, strip away query string parameters
+          const parsedUrl = new urlParser.URL(relUrl, this.url.href);
+          linkUrls.set(parsedUrl.href, {});
+        }
+      });
+    return {
+      linkUrls: mapToObject(linkUrls),
+      externalUrls: Array.from(externalUrls.keys()),
+      mediaUrls: Array.from(mediaUrls.keys())
+    };
   }
 }
 
-module.exports = HttpPage;
+module.exports = {
+  HttpPage,
+  HttpPageLoadError
+};

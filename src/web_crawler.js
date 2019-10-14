@@ -1,4 +1,4 @@
-const HttpPage = require('./http_page');
+const { HttpPage, HttpPageLoadError } = require('./http_page');
 
 class WebCrawler {
 
@@ -10,26 +10,28 @@ class WebCrawler {
    * @param {String} url  URL to start crawling from
    */
   async crawl(url) {
-    this.crawled = [];
-    return this.traverse(new HttpPage(url));
+    return this.traverse(new HttpPage(url), []);
   }
 
-  async traverse(page) {
-    console.log(`Crawling ${page.url.href}...`)
-    const result = await page.getLinks();
-    for (const [url] of result.pages.entries()) {
-      if (this.crawled.includes(url)) continue;
-
-      this.crawled.push(url);
-      try {
-        const res = await this.traverse(new HttpPage(url));
-        result.pages.set(url, res);
-      } catch (e) {
-        // URL failed, skip
-        console.error(e);
+  async traverse(page, crawled) {
+    console.log(`Crawling ${page.href()}...`);
+    try {
+      crawled.push(page.href());
+      const result = await page.scrape();
+      // traverse page links
+      const urls = Object.keys(result.linkUrls);
+      const uncrawledUrls = urls.filter(x => !crawled.includes(x));
+      for (const url of uncrawledUrls) {
+        result.linkUrls[url] = await this.traverse(new HttpPage(url), crawled);
+      }
+      return result;
+    } catch (e) {
+      console.error(e);
+      // skip pages we couldn't load (for whatever reason)
+      if (!(e instanceof HttpPageLoadError)) {
+        throw e;
       }
     }
-    return result;
   }
 }
 
