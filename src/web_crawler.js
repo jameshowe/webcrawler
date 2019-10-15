@@ -11,6 +11,7 @@ class WebCrawler {
   constructor() {
     this.crawled = null;
   }
+  
   /**
    * Crawl links for the specified URL
    * @param {String} url
@@ -26,15 +27,12 @@ class WebCrawler {
   }
 
   /**
-   * Follow crawlable links for the specified page and appends the results, excluding links that have already been crawled
+   * Recursively scrape page URLs ensuring each crawlable link is visited once
    * @param {HttpPage} page   Page to crawl
    * @param {Array} crawled   Array of URLs that have already been crawled
    * @param {Object} result   Resultset to be updated from crawl
    */
   async traverse(page, crawled, result) {
-    // avoid re-crawling same URL
-    if (crawled.includes(page.href())) return;
-
     console.log(`Crawling ${page.href()}...`);
     try {
       crawled.push(page.href());
