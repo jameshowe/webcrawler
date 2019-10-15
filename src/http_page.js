@@ -7,6 +7,15 @@ const { mapToObject } = require('./utils');
  * Class to respresnt a HTTP page load error
  */
 class HttpPageLoadError extends Error {
+
+  /**
+   * Creates a HttpPageLoadError instance
+   * @param {String} url 
+   */
+  constructor(url) {
+    super(`Failed to load URL - ${url}`);
+    this.url = url;
+  }
 }
 
 /**
@@ -28,7 +37,6 @@ class HttpPage {
 
   /**
    * Returns href for page
-   * 
    * @readonly
    */
   href() {
@@ -49,12 +57,8 @@ class HttpPage {
       this.loaded = true;
       return this.$;
     } catch (e) {
-      if (e.isAxiosError) {
-        console.error(e.data, e.stack);
-      } else {
-        console.error(e);
-      }
-      throw new HttpPageLoadError('Failed to load URL')
+      console.error(e.stack);
+      throw new HttpPageLoadError(this.url.href);
     }
   }
 
@@ -85,9 +89,17 @@ class HttpPage {
   }
 
   /**
+   * Convert a relative URL to an absolute URL
+   * @param {String} url  Relative URL
+   */
+  relToAbs(url) {
+    // ensure host name for URL, strip away query string parameters
+    return new urlParser.URL(url, this.url.href).href;
+  }
+
+  /**
    * Scrape HTML content all possible links
-   * 
-   * @returns {Object} Scrape result
+   * @returns Scrape results
    */
   async scrape() {
     // use maps to dedupe URLs
@@ -120,13 +132,11 @@ class HttpPage {
         if (relUrl && relUrl.startsWith('data:')) return;
 
         if (this.isImageUrl(relUrl)) {
-          result.mediaUrls.set(src, null);
+          result.mediaUrls.set(pageUrl.host ? src : this.relToAbs(src), null);
         } else if (pageUrl.host && !this.isSameDomain(pageUrl.host)) {
           result.externalUrls.set(src, null);
         } else if (relUrl !== this.url.pathname) {
-          // ensure host name for URL, strip away query string parameters
-          const parsedUrl = new urlParser.URL(relUrl, this.url.href);
-          result.linkUrls.set(parsedUrl.href, null);
+          result.linkUrls.set(this.relToAbs(relUrl), null);
         }
       });
     return result;
