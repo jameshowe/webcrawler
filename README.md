@@ -5,11 +5,12 @@ The aim of the application is to enumerate all the links for each page on a give
 
 There are some caveats:
 
-- The application will automatically exclude JS / CSS links
+- The application will automatically exclude JS / CSS URLs
 - The application will not crawl external URLs
-- The application will not crawl sub-domain URLs e.g. test.google.com
+- The application will not crawl sub-domain URLs e.g. `test.wiprodigital.com`
 
 ## Installing
+Node v7.6+ required
 ```
 npm i
 ```
@@ -26,9 +27,9 @@ npm test
 
 ## Notes
 
-- Apply [SRP](https://en.wikipedia.org/wiki/Single_responsibility_principle) for scraping (`HttpPage`) and traversing (`WebCrawler`)
-- Make use of [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) to dedupe links
-- Use [recursion](https://en.wikipedia.org/wiki/Recursion_(computer_science)) to traverse pages
+- Applied [SRP](https://en.wikipedia.org/wiki/Single_responsibility_principle) for scraping (`HttpPage`) and traversing (`WebCrawler`)
+- Made use of [Map](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) to dedupe links
+- Used [recursion](https://en.wikipedia.org/wiki/Recursion_(computer_science)) to traverse pages
 - Took the decision to not create an "exporter" or "deserializer" class, given the native support in Node for JSON serialization & file exporting. However, if the application needed to support various export types then this would perhaps be a good approach to introduce a common interface.
 
 ## TODO
