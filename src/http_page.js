@@ -1,7 +1,10 @@
 const axios = require('axios');
 const cheerio = require('cheerio');
 const urlParser = require('url');
-const { mapToObject } = require('./utils');
+const crypto = require('crypto');
+
+// ensure we only ever return string responses
+axios.defaults.transformResponse = data => data;
 
 /**
  * Class to respresnt a HTTP page load error
@@ -33,6 +36,7 @@ class HttpPage {
 
     this.$ = null;
     this.loaded = false;
+    this.contentHash = null;
   }
 
   /**
@@ -54,6 +58,9 @@ class HttpPage {
     try {
       const result = await axios.get(this.url.href);
       this.$ = cheerio.load(result.data);
+      const hash = crypto.createHash('sha256');
+      hash.update(result.data, 'utf8');
+      this.contentHash = hash.digest('hex');
       this.loaded = true;
       return this.$;
     } catch (e) {
