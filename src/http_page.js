@@ -15,9 +15,10 @@ class HttpPageLoadError extends Error {
    * Creates a HttpPageLoadError instance
    * @param {String} url 
    */
-  constructor(url) {
-    super(`Failed to load URL - ${url}`);
+  constructor(url, statusCode) {
+    super(`URL failed with status code ${statusCode} - ${url}`);
     this.url = url;
+    this.statusCode = statusCode;
   }
 }
 
@@ -65,7 +66,8 @@ class HttpPage {
       return this.$;
     } catch (e) {
       console.error(e.stack);
-      throw new HttpPageLoadError(this.url.href);
+      let status = e.response ? e.response.status : 500;
+      throw new HttpPageLoadError(this.url.href, status);
     }
   }
 

@@ -16,7 +16,8 @@ const saveToJson = (crawl_result, file_name) => {
   const data = {
     linkUrls: sortMapKeys(crawl_result.linkUrls),
     mediaUrls: sortMapKeys(crawl_result.mediaUrls),
-    externalUrls: sortMapKeys(crawl_result.externalUrls)
+    externalUrls: sortMapKeys(crawl_result.externalUrls),
+    deadLinks: sortMapKeys(crawl_result.deadLinks)
   }
   fs.writeFileSync(file_path, JSON.stringify(data, null, 2));
 }

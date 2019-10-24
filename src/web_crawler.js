@@ -20,7 +20,8 @@ class WebCrawler {
     const result = {
       linkUrls: new Map(),
       externalUrls: new Map(),
-      mediaUrls: new Map()
+      mediaUrls: new Map(),
+      deadLinks: new Map()
     };
     await this.traverse(new HttpPage(url), [], [], result);
     return result;
@@ -62,7 +63,11 @@ class WebCrawler {
     } catch (e) {
       console.error(e);
       // skip pages we couldn't load (for whatever reason)
-      if (!(e instanceof HttpPageLoadError)) {
+      if (e instanceof HttpPageLoadError) {
+        if (e.statusCode === 404) {
+          result.deadLinks.set(e.url);
+        }
+      } else {
         throw e;
       }
     }
