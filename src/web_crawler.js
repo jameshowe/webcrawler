@@ -37,7 +37,7 @@ class WebCrawler {
       if (hashes.includes(page.contentHash)) {
         // we haven't seen this URL, but we've seen this content before
         // ignore the URL and don't rescrape the content
-        urls.splice(urls.length-1, 1);
+        urls.pop();
         return;
       }
 
