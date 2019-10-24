@@ -39,7 +39,7 @@ npm test
 - Decouple HTML parsing from `HttpPage` class (maybe down the line we want to move away from `cheerio`)
 - Move results deserialization / file exporting to separate classes
 - Avoid crawling CMS-related URLs (`/xmlrpc.php`, `/wp-json` etc.)
-- Improve canonicalization of URLs to avoid duplicatation / re-processing
+- Better handling of erroneous but valid URLs e.g. http://domain.com//a/b/c, crawler would currently treat //a as the domain in itself
 - Better hashtag URL processing (although the page is the same, they may pull dynamic content)
 - Better file name validation
 - Include stats e.g. total links found, pages crawled, crawl times etc.

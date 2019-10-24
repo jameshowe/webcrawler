@@ -6,13 +6,6 @@ const { HttpPage, HttpPageLoadError } = require('./http_page');
 class WebCrawler {
 
   /**
-   * Creates a new WebCrawler instance
-   */
-  constructor() {
-    this.crawled = null;
-  }
-  
-  /**
    * Crawl links for the specified URL
    * @param {String} url
    */
@@ -48,7 +41,7 @@ class WebCrawler {
         return;
       }
 
-    console.log(`Crawling ${page.href()}...`);
+      console.log(`Crawling ${page.href()}...`);
       // take a note of the content hash for the current page & scrape the links
       hashes.push(page.contentHash);
       const pageResult = await page.scrape();
