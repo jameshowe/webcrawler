@@ -86,7 +86,7 @@ class HttpPage {
    * @param {String} url  URL to verify
    */
   isImageUrl(url) {
-    return (/\.(gif|jpe?g|tiff|png|bmp)$/i).test(url);
+    return (/\.(gif|jpe?g|tiff|png|bmp|svg)$/i).test(url);
   }
 
   /**
@@ -136,9 +136,10 @@ class HttpPage {
           relUrl = relUrl.substr(0, relUrl.length-1);
         }
 
-        // skip CSS / JS / Data URLs
+        // skip CSS / JS / Data / Mailto URLs
         if (this.isJsOrCssUrl(relUrl)) return;
         if (relUrl && relUrl.startsWith('data:')) return;
+        if (relUrl && relUrl.startsWith('mailto:')) return;
 
         if (this.isImageUrl(relUrl)) {
           result.mediaUrls.set(pageUrl.host ? src : this.relToAbs(src), null);
